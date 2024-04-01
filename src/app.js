@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
 
-async function moveFile() {
+function moveFile() {
   try {
     const [pathFrom, pathTo] = process.argv.slice(2);
 
@@ -13,13 +13,16 @@ async function moveFile() {
       throw new Error('Path does not exist!');
     }
 
-    const sourceStats = await fs.stat(absPathFrom);
+    const sourceStats = fs.statSync(absPathFrom);
 
     if (!sourceStats.isFile()) {
       throw new Error('There is no file!');
     }
 
-    if (pathTo.endsWith('/')) {
+    const isDirectory =
+      fs.existsSync(absPathTo) && fs.statSync(absPathTo).isDirectory();
+
+    if (isDirectory) {
       if (!fs.existsSync(absPathTo)) {
         throw new Error('Path already exists!');
       }
@@ -29,7 +32,7 @@ async function moveFile() {
       absPathTo = path.join(absPathTo, fileName);
     }
 
-    await fs.rename(absPathFrom, absPathTo);
+    fs.renameSync(absPathFrom, absPathTo);
   } catch (err) {
     console.error('Error:', err.message);
   }
