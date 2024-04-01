@@ -7,7 +7,7 @@ async function moveFile() {
     const [pathFrom, pathTo] = process.argv.slice(2);
 
     const absPathFrom = path.resolve(pathFrom);
-    const absPathTo = path.resolve(pathTo);
+    let absPathTo = path.resolve(pathTo);
 
     if (!fs.existsSync(absPathFrom)) {
       throw new Error('Path does not exist!');
@@ -19,19 +19,17 @@ async function moveFile() {
       throw new Error('There is no file!');
     }
 
-    let destinationPath = absPathTo;
-
-    if (absPathTo.endsWith('/')) {
-      const fileName = path.basename(pathFrom);
-
-      destinationPath = path.join(absPathTo, fileName);
-
+    if (pathTo.endsWith('/')) {
       if (!fs.existsSync(absPathTo)) {
         throw new Error('Path already exists!');
       }
+
+      const fileName = path.basename(pathFrom);
+
+      absPathTo = path.join(absPathTo, fileName);
     }
 
-    await fs.rename(absPathFrom, destinationPath);
+    await fs.rename(absPathFrom, absPathTo);
   } catch (err) {
     console.error('Error:', err.message);
   }
